@@ -1,0 +1,42 @@
+{
+  "name": "discord-music-bot",
+  "version": "1.0.0",
+  "description": "High-quality Discord music bot with web UI for local music collection",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node check-dependencies.js && node src/index.js",
+    "dev": "node check-dependencies.js && nodemon src/index.js",
+    "deploy": "node deploy-commands.js",
+    "deploy-guild": "node deploy-commands.js --guild",
+    "clear-cache": "rm -f .command-cache.json && echo 'Command cache cleared'",
+    "check": "node check-dependencies.js"
+  },
+  "dependencies": {
+    "@discord-player/opus": "^0.1.2",
+    "@discordjs/opus": "^0.10.0",
+    "@discordjs/voice": "^0.16.1",
+    "@seamless-medley/medley": "^0.5.3",
+    "cors": "^2.8.5",
+    "discord.js": "^14.14.1",
+    "express": "^4.18.2",
+    "ffmpeg-static": "^5.2.0",
+    "fs-extra": "^11.2.0",
+    "libsodium-wrappers": "^0.7.11",
+    "multer": "^1.4.5-lts.1",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "discord",
+    "music",
+    "bot",
+    "high-quality",
+    "flac",
+    "mp3",
+    "m4a"
+  ],
+  "author": "Music Bot",
+  "license": "MIT"
+}

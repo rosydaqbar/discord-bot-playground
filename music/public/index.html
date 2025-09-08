@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Music Bot - Web UI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-music"></i> Discord Music Bot</h1>
+            <p>High-Quality Music Player & Collection Manager</p>
+            <div id="connectionStatus" class="connection-status">
+                <span class="status-indicator" id="statusIndicator">🔄</span>
+                <span id="statusText">Connecting to Discord...</span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Server Status -->
+            <section class="server-status">
+                <h2 class="collapsible-header" id="serverStatusHeader">
+                    <i class="fas fa-server"></i> Server Status
+                    <i class="fas fa-chevron-down collapse-icon" id="serverStatusIcon"></i>
+                </h2>
+                <div id="serverList" class="server-grid collapsible-content collapsed">
+                    <div class="loading">Loading servers...</div>
+                </div>
+            </section>
+
+            <!-- Music Collection -->
+            <section class="music-collection">
+                <h2><i class="fas fa-folder-music"></i> Music Collection</h2>
+                <div class="collection-controls">
+                    <input type="text" id="searchInput" placeholder="Search music..." class="search-input">
+                    <select id="sortSelect" class="sort-select">
+                        <option value="title">Sort by Title</option>
+                        <option value="artist">Sort by Artist</option>
+                        <option value="album">Sort by Album</option>
+                        <option value="duration">Sort by Duration</option>
+                        <option value="dateAdded">Sort by Date Added</option>
+                    </select>
+                    <button id="refreshBtn" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div id="musicList" class="music-grid">
+                    <div class="loading">Loading music collection...</div>
+                </div>
+            </section>
+
+            <!-- Now Playing -->
+            <section class="now-playing">
+                <h2><i class="fas fa-play-circle"></i> Now Playing</h2>
+                <div id="nowPlayingInfo" class="now-playing-info">
+                    <div class="no-music">No music currently playing</div>
+                </div>
+                <div class="playback-controls">
+                    <button id="prevBtn" class="control-btn" disabled>
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button id="playPauseBtn" class="control-btn" disabled>
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="nextBtn" class="control-btn" disabled>
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                    <button id="stopBtn" class="control-btn" disabled>
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
+                <div class="volume-control">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="80" class="volume-slider">
+                    <i class="fas fa-volume-up"></i>
+                    <span id="volumeValue">80%</span>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal for server selection -->
+    <div id="serverModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Select Server to Play Music</h3>
+            <div id="serverSelection" class="server-selection">
+                <!-- Server options will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

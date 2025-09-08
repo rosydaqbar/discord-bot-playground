@@ -1,0 +1,14 @@
+{
+  "token": "YOUR_BOT_TOKEN_HERE",
+  "clientId": "YOUR_CLIENT_ID_HERE",
+  "guildId": "YOUR_GUILD_ID_HERE",
+  "musicDirectory": "./music_collection",
+  "webPort": 3000,
+  "audioQuality": {
+    "bitrate": "auto",
+    "sampleRate": 48000,
+    "channels": 2,
+    "volume": 0.8
+  },
+  "supportedFormats": [".mp3", ".flac", ".m4a", ".wav", ".ogg"]
+}
