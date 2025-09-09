@@ -13,9 +13,11 @@ Enhanced the `/play` command with intelligent search capabilities and fallback o
 
 ### 📋 Enhanced Search Results
 - **Visual Feedback**: Shows "Searching..." message during search operations
-- **Selectable Results**: Displays up to 10 search results in an interactive dropdown menu
+- **Paginated Results**: Displays up to 25 search results per page (Discord limit)
+- **Navigation Controls**: Previous/Next buttons to browse through multiple pages
 - **Match Percentage**: Shows similarity percentage for each result
 - **Context Information**: Displays file location and directory structure
+- **Page Indicators**: Shows current page and total results count
 
 ### 🔄 Fallback Options
 When no local results are found, users get these options:
@@ -82,9 +84,11 @@ getSuggestions(query, limit = 3)
 ## Performance Considerations
 
 - **File Caching**: Music file index is cached for 5 minutes
+- **Search Result Caching**: Paginated results cached for 10 minutes per user
 - **Lazy Loading**: Only indexes files when search is needed
-- **Result Limiting**: Maximum 10 results to prevent UI overflow
+- **Pagination**: Up to 100 results divided into 25-item pages
 - **Threshold Filtering**: Only shows matches above 30% similarity
+- **Memory Management**: Automatic cleanup of expired cache entries
 
 ## Future Enhancements
 
@@ -114,7 +118,15 @@ User: /play "stairway"
 System: Shows multiple matches including "Stairway to Heaven"
 ```
 
-### Scenario 3: No Local Results
+### Scenario 3: Many Results with Pagination
+```
+User: /play "love"
+System: Shows "Found 67 results for 'love'"
+        "Page 1 of 3 (showing 1-25 of 67)"
+        [Previous] [Next Results] buttons available
+```
+
+### Scenario 4: No Local Results
 ```
 User: /play "brand new song 2024"
 System: Shows external search options (Qobuz, Apple Music, YouTube)
@@ -144,8 +156,10 @@ The system has been tested with:
 - ✅ 120+ music files across multiple directories
 - ✅ Various query types (partial, misspelled, exact)
 - ✅ Performance with large music collections
+- ✅ Pagination with 100+ search results across 4 pages
 - ✅ Edge cases (empty queries, special characters)
-- ✅ UI interactions (select menus, buttons)
+- ✅ UI interactions (select menus, pagination buttons)
+- ✅ Cache expiration and cleanup functionality
 
 ## Conclusion
 
