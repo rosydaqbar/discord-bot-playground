@@ -8,12 +8,15 @@ const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    MessageFlags
+    MessageFlags,
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder
 } = require('discord.js');
 const fs = require('fs-extra');
 const path = require('path');
 const config = require('../../config.json');
 const musicPlayer = require('../services/musicPlayer');
+const fuzzySearch = require('../utils/fuzzySearch');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -53,28 +56,40 @@ module.exports = {
         await interaction.deferReply();
 
         try {
-            // Find the music file
-            const filePath = await musicPlayer.findMusicFile(filename);
+            // Find the music file using existing method first
+            let filePath = await musicPlayer.findMusicFile(filename);
 
             if (!filePath) {
-                const notFoundContainer = new ContainerBuilder()
-                    .setAccentColor(0xFF0000)
+                // Show searching message
+                const searchingContainer = new ContainerBuilder()
+                    .setAccentColor(0xFFFF00)
                     .addTextDisplayComponents(
                         textDisplay => textDisplay
-                            .setContent('## File Not Found')
+                            .setContent('## Searching...')
                     )
                     .addSeparatorComponents(
                         separator => separator
                     )
                     .addTextDisplayComponents(
                         textDisplay => textDisplay
-                            .setContent(`File "${filename}" not found in local collection!\n\n**Supported Formats:**\n${config.supportedFormats.join(', ')}`)
+                            .setContent(`Searching for "${filename}" in your music collection...`)
                     );
 
-                return interaction.editReply({
-                    components: [notFoundContainer],
+                await interaction.editReply({
+                    components: [searchingContainer],
                     flags: MessageFlags.IsComponentsV2
                 });
+
+                // Perform fuzzy search
+                const searchResults = await fuzzySearch.fuzzySearch(filename, 10);
+
+                if (searchResults.length > 0) {
+                    // Show search results
+                    return await this.showSearchResults(interaction, filename, searchResults);
+                } else {
+                    // No results found - show error with external search options
+                    return await this.showNoResultsError(interaction, filename);
+                }
             }
 
             const guildId = interaction.guildId;
@@ -359,5 +374,125 @@ module.exports = {
             console.error('Autocomplete error:', error);
             return interaction.respond([]);
         }
+    },
+
+    // Show search results with selectable options
+    async showSearchResults(interaction, originalQuery, searchResults) {
+        const searchCompleteContainer = new ContainerBuilder()
+            .setAccentColor(0x00FF00)
+            .addTextDisplayComponents(
+                textDisplay => textDisplay
+                    .setContent('## Search Complete')
+            )
+            .addSeparatorComponents(
+                separator => separator
+            )
+            .addTextDisplayComponents(
+                textDisplay => textDisplay
+                    .setContent(`Found ${searchResults.length} result${searchResults.length === 1 ? '' : 's'} for "${originalQuery}":`)
+            );
+
+        // Create select menu with search results
+        const selectMenu = new StringSelectMenuBuilder()
+            .setCustomId('play_search_result')
+            .setPlaceholder('Choose a track to play...')
+            .setMinValues(1)
+            .setMaxValues(1);
+
+        // Add options for each search result
+        for (let i = 0; i < Math.min(searchResults.length, 25); i++) { // Discord limit is 25 options
+            const result = searchResults[i];
+            const similarity = Math.round(result.similarity * 100);
+            
+            let description = `${similarity}% match`;
+            if (result.directory) {
+                description += ` • ${result.directory}`;
+            }
+            
+            selectMenu.addOptions(
+                new StringSelectMenuOptionBuilder()
+                    .setLabel(result.name.length > 100 ? result.name.substring(0, 97) + '...' : result.name)
+                    .setDescription(description.length > 100 ? description.substring(0, 97) + '...' : description)
+                    .setValue(`play:${result.relativePath}`)
+            );
+        }
+
+        const selectRow = new ActionRowBuilder().addComponents(selectMenu);
+
+        // Add additional buttons
+        const buttonRow = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`rerun_play:${originalQuery}`)
+                    .setLabel('Rerun Command')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔄'),
+                new ButtonBuilder()
+                    .setCustomId('search_qobuz')
+                    .setLabel('Search on Qobuz')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🎵'),
+                new ButtonBuilder()
+                    .setCustomId('search_apple_music')
+                    .setLabel('Search on Apple Music')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🍎'),
+                new ButtonBuilder()
+                    .setCustomId('search_youtube')
+                    .setLabel('Search on YouTube')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('📺')
+            );
+
+        return interaction.editReply({
+            components: [searchCompleteContainer, selectRow, buttonRow],
+            flags: MessageFlags.IsComponentsV2
+        });
+    },
+
+    // Show error when no results are found
+    async showNoResultsError(interaction, originalQuery) {
+        const noResultsContainer = new ContainerBuilder()
+            .setAccentColor(0xFF0000)
+            .addTextDisplayComponents(
+                textDisplay => textDisplay
+                    .setContent('## No Results Found')
+            )
+            .addSeparatorComponents(
+                separator => separator
+            )
+            .addTextDisplayComponents(
+                textDisplay => textDisplay
+                    .setContent(`No matches found for "${originalQuery}" in your local music collection.\n\n**Supported Formats:**\n${config.supportedFormats.join(', ')}\n\nTry searching external sources or check your spelling.`)
+            );
+
+        const buttonRow = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`rerun_play:${originalQuery}`)
+                    .setLabel('Rerun Command')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔄'),
+                new ButtonBuilder()
+                    .setCustomId('search_qobuz')
+                    .setLabel('Search on Qobuz')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🎵'),
+                new ButtonBuilder()
+                    .setCustomId('search_apple_music')
+                    .setLabel('Search on Apple Music')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🍎'),
+                new ButtonBuilder()
+                    .setCustomId('search_youtube')
+                    .setLabel('Search on YouTube')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('📺')
+            );
+
+        return interaction.editReply({
+            components: [noResultsContainer, buttonRow],
+            flags: MessageFlags.IsComponentsV2
+        });
     },
 };

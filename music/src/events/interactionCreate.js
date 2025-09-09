@@ -31,6 +31,69 @@ module.exports = {
             return;
         }
         
+        // Handle string select menu interactions
+        if (interaction.isStringSelectMenu()) {
+            console.log('🔍 SELECT MENU INTERACTION:', interaction.customId);
+            
+            if (interaction.customId === 'play_search_result') {
+                const selectedValue = interaction.values[0];
+                console.log('🔍 Selected value:', selectedValue);
+                
+                if (selectedValue.startsWith('play:')) {
+                    const filename = selectedValue.replace('play:', '');
+                    console.log('🔍 Playing selected file:', filename);
+                    
+                    // Get the play command and execute it with the selected filename
+                    const playCommand = interaction.client.commands.get('play');
+                    if (playCommand) {
+                        // Create a mock options object
+                        const mockOptions = {
+                            getString: (name) => name === 'filename' ? filename : null
+                        };
+                        
+                        // Create a mock interaction
+                        const mockInteraction = {
+                            ...interaction,
+                            options: mockOptions,
+                            deferReply: async () => {
+                                await interaction.deferReply();
+                            },
+                            editReply: async (options) => {
+                                await interaction.editReply(options);
+                            }
+                        };
+                        
+                        try {
+                            await playCommand.execute(mockInteraction);
+                        } catch (error) {
+                            console.error('Error executing play command from select menu:', error);
+                            
+                            const { ContainerBuilder, MessageFlags } = require('discord.js');
+                            const errorContainer = new ContainerBuilder()
+                                .setAccentColor(0xFF0000)
+                                .addTextDisplayComponents(
+                                    textDisplay => textDisplay
+                                        .setContent('## Error')
+                                )
+                                .addSeparatorComponents(
+                                    separator => separator
+                                )
+                                .addTextDisplayComponents(
+                                    textDisplay => textDisplay
+                                        .setContent(`Failed to play selected track: ${error.message}`)
+                                );
+
+                            await interaction.reply({
+                                components: [errorContainer],
+                                flags: MessageFlags.IsComponentsV2
+                            });
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
         if (!interaction.isChatInputCommand()) return;
 
         // Log the slash command interaction

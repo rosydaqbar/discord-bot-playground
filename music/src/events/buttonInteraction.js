@@ -1161,6 +1161,95 @@ module.exports = {
                     }
 
                 default:
+                    // Handle rerun play command
+                    if (interaction.customId.startsWith('rerun_play:')) {
+                        const query = interaction.customId.replace('rerun_play:', '');
+                        
+                        // Show a message that the command is being rerun
+                        const rerunContainer = new ContainerBuilder()
+                            .setAccentColor(0x0099FF)
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('## Command Rerun')
+                            )
+                            .addSeparatorComponents(
+                                separator => separator
+                            )
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent(`Rerunning \`/play ${query}\`...\n\nPlease use the \`/play\` command again with your search term.`)
+                            );
+
+                        return interaction.reply({
+                            components: [rerunContainer],
+                            flags: MessageFlags.IsComponentsV2
+                        });
+                    }
+
+                    // Handle external search buttons
+                    if (interaction.customId === 'search_qobuz') {
+                        const qobuzContainer = new ContainerBuilder()
+                            .setAccentColor(0x0099FF)
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('## Qobuz Search')
+                            )
+                            .addSeparatorComponents(
+                                separator => separator
+                            )
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('🚧 **Coming Soon!**\n\nQobuz integration is currently in development.\n\nThis feature will allow you to search and stream high-quality music directly from Qobuz.')
+                            );
+
+                        return interaction.reply({
+                            components: [qobuzContainer],
+                            flags: MessageFlags.IsComponentsV2
+                        });
+                    }
+
+                    if (interaction.customId === 'search_apple_music') {
+                        const appleMusicContainer = new ContainerBuilder()
+                            .setAccentColor(0x0099FF)
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('## Apple Music Search')
+                            )
+                            .addSeparatorComponents(
+                                separator => separator
+                            )
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('🚧 **Coming Soon!**\n\nApple Music integration is currently in development.\n\nThis feature will allow you to search and stream music directly from Apple Music.')
+                            );
+
+                        return interaction.reply({
+                            components: [appleMusicContainer],
+                            flags: MessageFlags.IsComponentsV2
+                        });
+                    }
+
+                    if (interaction.customId === 'search_youtube') {
+                        const youtubeContainer = new ContainerBuilder()
+                            .setAccentColor(0xFF0000)
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('## YouTube Search')
+                            )
+                            .addSeparatorComponents(
+                                separator => separator
+                            )
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('🚧 **Coming Soon!**\n\nYouTube integration is currently in development.\n\nThis feature will allow you to search and stream music directly from YouTube.')
+                            );
+
+                        return interaction.reply({
+                            components: [youtubeContainer],
+                            flags: MessageFlags.IsComponentsV2
+                        });
+                    }
+
                     // Handle pagination and other custom interactions
                     if (interaction.customId.startsWith('queue_')) {
                         const comingSoonContainer = new ContainerBuilder()
