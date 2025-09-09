@@ -56,11 +56,10 @@ module.exports = {
                 .addTextDisplayComponents(
                     textDisplay => textDisplay
                         .setContent(`**Server:** ${interaction.guild.name}\n**Bot Status:** Online and Ready`)
-                )
-                .addSeparatorComponents(
-                    separator => separator
-                )
-                .addButtonComponents(
+                );
+
+            const mainButtonRow = new ActionRowBuilder()
+                .addComponents(
                     new ButtonBuilder()
                         .setCustomId('dashboard_refresh')
                         .setLabel('Refresh Stats')
@@ -115,6 +114,7 @@ module.exports = {
 
             // Create current playback container if music is playing
             let playbackContainer = null;
+            let musicButtonRow = null;
             if (currentTrack) {
                 const isPaused = musicPlayer.isPaused(interaction.guildId);
                 playbackContainer = new ContainerBuilder()
@@ -129,11 +129,10 @@ module.exports = {
                     .addTextDisplayComponents(
                         textDisplay => textDisplay
                             .setContent(`**${currentTrack.title}**\n**Artist:** ${currentTrack.artist || 'Unknown Artist'}\n**Album:** ${currentTrack.album || 'Unknown Album'}\n*Local File*\n${currentTrack.filePath}\nVolume: 80%`)
-                    )
-                    .addSeparatorComponents(
-                        separator => separator
-                    )
-                    .addButtonComponents(
+                    );
+
+                musicButtonRow = new ActionRowBuilder()
+                    .addComponents(
                         new ButtonBuilder()
                             .setCustomId('music_pause')
                             .setLabel(isPaused ? 'Resume' : 'Pause')
@@ -161,6 +160,12 @@ module.exports = {
 
             if (playbackContainer) {
                 components.push(playbackContainer);
+            }
+
+            components.push(mainButtonRow);
+
+            if (musicButtonRow) {
+                components.push(musicButtonRow);
             }
 
             return interaction.editReply({ 

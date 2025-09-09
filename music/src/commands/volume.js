@@ -63,11 +63,10 @@ module.exports = {
                 .addTextDisplayComponents(
                     textDisplay => textDisplay
                         .setContent(`Volume set to **${volume}%**\n\n**Volume Level:**\n\`${volumeBar}\` ${volume}%`)
-                )
-                .addSeparatorComponents(
-                    separator => separator
-                )
-                .addButtonComponents(
+                );
+
+            const buttonRow = new ActionRowBuilder()
+                .addComponents(
                     new ButtonBuilder()
                         .setCustomId('volume_mute')
                         .setLabel('Mute')
@@ -86,7 +85,7 @@ module.exports = {
                 );
 
             return interaction.reply({
-                components: [volumeContainer],
+                components: [volumeContainer, buttonRow],
                 flags: MessageFlags.IsComponentsV2
             });
         } else {

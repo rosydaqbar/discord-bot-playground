@@ -53,11 +53,10 @@ module.exports = {
                 .addTextDisplayComponents(
                     textDisplay => textDisplay
                         .setContent(`**${currentTrack.title}**\n\nUse \`/resume\` to continue playing`)
-                )
-                .addSeparatorComponents(
-                    separator => separator
-                )
-                .addButtonComponents(
+                );
+
+            const buttonRow = new ActionRowBuilder()
+                .addComponents(
                     new ButtonBuilder()
                         .setCustomId('music_resume')
                         .setLabel('Resume')
@@ -71,7 +70,7 @@ module.exports = {
                 );
 
             return interaction.reply({
-                components: [pauseContainer],
+                components: [pauseContainer, buttonRow],
                 flags: MessageFlags.IsComponentsV2
             });
         } else {

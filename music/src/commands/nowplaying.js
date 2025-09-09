@@ -91,44 +91,39 @@ module.exports = {
                 .setContent(`**${currentTrack.title}**\n**Artist:** ${currentTrack.artist || 'Unknown Artist'}\n**Album:** ${currentTrack.album || 'Unknown Album'}\n\n**Duration:** ${durationText}\n**Started:** <t:${startedTime}:R>\n**Status:** ${status}`)
         );
 
-        // Add separator before buttons
-        nowPlayingContainer.addSeparatorComponents(
-            separator => separator
-        );
-
-        // Add buttons inside the container
-        nowPlayingContainer.addButtonComponents(
-            new ButtonBuilder()
-                .setCustomId('music_previous')
-                .setLabel('Previous')
-                .setStyle(ButtonStyle.Secondary)
-                .setEmoji('⏮️')
-                .setDisabled(!hasPrevious),
-            new ButtonBuilder()
-                .setCustomId('music_pause')
-                .setLabel(isPaused ? 'Resume' : 'Pause')
-                .setStyle(isPaused ? ButtonStyle.Success : ButtonStyle.Secondary)
-                .setEmoji(isPaused ? '▶️' : '⏸️'),
-            new ButtonBuilder()
-                .setCustomId('music_stop')
-                .setLabel('Stop')
-                .setStyle(ButtonStyle.Danger)
-                .setEmoji('⏹️'),
-            new ButtonBuilder()
-                .setCustomId('music_next')
-                .setLabel('Next')
-                .setStyle(ButtonStyle.Secondary)
-                .setEmoji('⏭️')
-                .setDisabled(!hasNext),
-            new ButtonBuilder()
-                .setCustomId('view_queue')
-                .setLabel('Queue')
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji('📋')
-        );
+        const buttonRow = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('music_previous')
+                    .setLabel('Previous')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('⏮️')
+                    .setDisabled(!hasPrevious),
+                new ButtonBuilder()
+                    .setCustomId('music_pause')
+                    .setLabel(isPaused ? 'Resume' : 'Pause')
+                    .setStyle(isPaused ? ButtonStyle.Success : ButtonStyle.Secondary)
+                    .setEmoji(isPaused ? '▶️' : '⏸️'),
+                new ButtonBuilder()
+                    .setCustomId('music_stop')
+                    .setLabel('Stop')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('⏹️'),
+                new ButtonBuilder()
+                    .setCustomId('music_next')
+                    .setLabel('Next')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('⏭️')
+                    .setDisabled(!hasNext),
+                new ButtonBuilder()
+                    .setCustomId('view_queue')
+                    .setLabel('Queue')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('📋')
+            );
 
         return interaction.reply({ 
-            components: [nowPlayingContainer],
+            components: [nowPlayingContainer, buttonRow],
             flags: MessageFlags.IsComponentsV2
         });
     },

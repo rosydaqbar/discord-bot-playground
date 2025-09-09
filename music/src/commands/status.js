@@ -61,11 +61,10 @@ module.exports = {
                 .addTextDisplayComponents(
                     textDisplay => textDisplay
                         .setContent(`**Current State:** ${statusInfo.isIdle ? 'Idle' : 'Active'}\n**Uptime:** ${uptimeString}\n**Active Queues:** ${statusInfo.activeQueues}\n**Servers:** ${client.guilds.cache.size}\n**Users:** ${client.users.cache.size}\n\n**Discord Status:**\n${currentActivity ? `• Activity: ${currentActivity.name}\n• Type: ${this.getActivityType(currentActivity.type)}\n• State: ${currentActivity.state || 'None'}` : '• No activity set'}`)
-                )
-                .addSeparatorComponents(
-                    separator => separator
-                )
-                .addButtonComponents(
+                );
+
+            const statusButtonRow = new ActionRowBuilder()
+                .addComponents(
                     new ButtonBuilder()
                         .setCustomId('status_refresh')
                         .setLabel('Refresh Status')
@@ -92,11 +91,10 @@ module.exports = {
                     .addTextDisplayComponents(
                         textDisplay => textDisplay
                             .setContent(`**Track:** ${statusInfo.currentActivity.trackTitle}\n**Server:** ${statusInfo.currentActivity.guildName}\n**Paused:** ${statusInfo.currentActivity.paused ? 'Yes' : 'No'}\n**Last Update:** <t:${Math.floor(statusInfo.lastUpdate / 1000)}:R>`)
-                    )
-                    .addSeparatorComponents(
-                        separator => separator
-                    )
-                    .addButtonComponents(
+                    );
+
+                const musicButtonRow = new ActionRowBuilder()
+                    .addComponents(
                         new ButtonBuilder()
                             .setCustomId('status_force_idle')
                             .setLabel('Force Idle')
@@ -105,12 +103,12 @@ module.exports = {
                     );
 
                 return interaction.editReply({
-                    components: [statusContainer, musicContainer],
+                    components: [statusContainer, musicContainer, statusButtonRow, musicButtonRow],
                     flags: MessageFlags.IsComponentsV2
                 });
             } else {
                 return interaction.editReply({
-                    components: [statusContainer],
+                    components: [statusContainer, statusButtonRow],
                     flags: MessageFlags.IsComponentsV2
                 });
             }
