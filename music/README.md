@@ -1,40 +1,43 @@
 # Discord High-Quality Music Bot
 
-A powerful Discord music bot with web UI that supports high-quality audio streaming from your local music collection. Supports FLAC, MP3, M4A, WAV, and OGG formats with 48kHz sample rate for crystal-clear audio.
+A powerful Discord music bot with web UI that plays high-quality audio from your local music collection. Features intelligent fuzzy search, paginated results, and supports FLAC, MP3, M4A, WAV, and OGG formats with 48kHz sample rate for crystal-clear audio.
 
-## Features
+## 🎵 Key Features
 
-### 🎵 High-Quality Audio
+### High-Quality Audio Engine
+- **Custom Medley Integration** - Uses @seamless-medley/medley for professional audio processing
 - **48kHz sample rate** for studio-quality sound
-- Support for **FLAC, MP3, M4A, WAV, OGG** formats
-- Optimized FFmpeg settings for maximum audio quality
-- Configurable bitrate and audio settings
+- **FLAC lossless support** with ReplayGain normalization
+- **Multiple format support**: FLAC, MP3, M4A, WAV, OGG
+- **Optimized FFmpeg settings** for maximum audio quality
 
-### 🎮 Discord Commands
-- `/play <query>` - Play music from online sources or search
-- `/local <filename>` - Play from your local music collection (with autocomplete)
-- `/pause` - Pause current playback
-- `/resume` - Resume paused music
-- `/skip` - Skip to next track
-- `/stop` - Stop playback and clear queue
+### Intelligent Search System
+- **Fuzzy Search Engine** with Levenshtein distance algorithm
+- **Paginated Results** showing 25 items per page (up to 100 total)
+- **Smart Ranking** - Results sorted by relevance and similarity
+- **Search Caching** for faster subsequent searches
+- **Typo Tolerance** - Find songs even with spelling mistakes
+
+### Discord Commands
+- `/play <filename>` - **Enhanced with fuzzy search!** Play music from your local collection
 - `/queue` - View current music queue with interactive controls
-- `/volume <level>` - Set volume (0-100)
 - `/nowplaying` - Show current track information with controls
+- `/stop` - Stop playback and clear queue
+- `/skip` - Skip to next track
 - `/dashboard` - Show comprehensive bot dashboard with stats
 - `/logs` - View logging statistics and recent activity (Admin only)
 - `/refresh` - Refresh and redeploy commands (Admin only)
 - `/status` - Show bot status and current activity
 
-### 🎛️ Interactive Components v2 Features
+### Interactive Components v2 Interface
 - **Rich Interactive Messages** - Modern Discord Components v2 interface
 - **Inline Playback Controls** - Pause, skip, stop directly from messages
-- **Volume Controls** - Adjust volume with +/- buttons
-- **Queue Management** - Shuffle, clear, and navigate queue
-- **Real-time Information** - Live track info with thumbnails
-- **File Management** - Browse collection and get file details
-- **Dashboard Overview** - Complete server and collection statistics
+- **Album Artwork Display** - Beautiful thumbnail integration
+- **Real-time Information** - Live track info with timestamps
+- **Paginated Search Results** - Navigate through search results with buttons
+- **Queue Management** - Interactive queue display and controls
 
-### 🌐 Web UI Dashboard
+### Web UI Dashboard
 - **Real-time server monitoring** - See all Discord servers and their status
 - **Music collection browser** - Browse, search, and sort your local music
 - **Remote playback control** - Play, pause, skip, stop from the web interface
@@ -42,14 +45,14 @@ A powerful Discord music bot with web UI that supports high-quality audio stream
 - **Multi-server support** - Control music across multiple Discord servers
 - **Responsive design** - Works on desktop and mobile
 
-### 📁 Local Music Collection
-- Automatic music metadata extraction
-- Support for high-quality formats (FLAC, etc.)
-- File size and bitrate information
-- Search and sort functionality
-- Autocomplete for Discord commands
+### Advanced Logging System
+- **Comprehensive Event Tracking** - All interactions, commands, and music events
+- **Colored Console Output** - Easy-to-read logs with emojis and colors
+- **File Logging** - Daily log files with JSON format for analysis
+- **Performance Metrics** - Execution times and system statistics
+- **Automatic Cleanup** - Old logs are automatically cleaned (30-day retention)
 
-## Setup Instructions
+## 🚀 Setup Instructions
 
 ### 1. Prerequisites
 - Node.js 18+ installed
@@ -86,13 +89,9 @@ Edit `config.json`:
   "clientId": "YOUR_CLIENT_ID_HERE", 
   "guildId": "YOUR_GUILD_ID_HERE",
   "musicDirectory": "./music_collection",
-  "webPort": 3000,
-  "audioQuality": {
-    "bitrate": "auto",
-    "sampleRate": 48000,
-    "channels": 2,
-    "volume": 0.8
-  },
+  "webPort": 3005,
+  "volume": 0.8,
+  "audioQuality": "Medley High Quality (Int16LE, 48kHz, ReplayGain, 250ms buffer) - FLAC Lossless Supported",
   "supportedFormats": [".mp3", ".flac", ".m4a", ".wav", ".ogg"]
 }
 ```
@@ -100,7 +99,7 @@ Edit `config.json`:
 ### 5. Add Your Music
 1. Create a `music_collection` folder (or use the path specified in config)
 2. Add your music files (FLAC, MP3, M4A, WAV, OGG)
-3. The bot will automatically scan and index them
+3. The bot will automatically scan and index them with fuzzy search
 
 ### 6. Start the Bot
 ```bash
@@ -114,18 +113,21 @@ npm run dev
 npm run deploy
 ```
 
-**✨ Commands are now deployed automatically when you start the bot!** No need to run a separate deployment script.
+**✨ Commands are deployed automatically when you start the bot!**
 
 ### 7. Access Web UI
-Open your browser and go to `http://localhost:3000`
+Open your browser and go to `http://localhost:3005`
 
-## Usage
+## 🎮 Usage
 
 ### Discord Commands
 - Join a voice channel
-- Use `/play <song name>` to play from online sources
-- Use `/local <filename>` to play from your collection (autocomplete available)
-- Control playback with `/pause`, `/resume`, `/skip`, `/stop`
+- Use `/play <song name>` to search and play from your collection
+  - Get up to 100 search results with intelligent fuzzy matching
+  - Navigate with Previous/Next buttons (25 results per page)
+  - Smart search ranking with typo tolerance
+  - Select from dropdown menu to play instantly
+- Control playback with interactive buttons on messages
 - Check queue with `/queue` and current track with `/nowplaying`
 
 ### Web Interface
@@ -135,186 +137,144 @@ Open your browser and go to `http://localhost:3000`
 - Use playback controls to manage music remotely
 - Adjust volume with the slider
 
-## Audio Quality Settings
+## 🔧 Technical Architecture
 
-The bot is optimized for high-quality audio:
-- **Sample Rate**: 48kHz (Discord's native rate)
-- **Channels**: Stereo (2 channels)
-- **Bitrate**: Auto-detected or configurable
-- **Format Support**: FLAC (lossless), MP3, M4A, WAV, OGG
+### Audio Processing Engine
+- **Medley Core** - Professional audio library for high-quality playback
+- **Discord.js Voice** - Native Discord voice connection handling
+- **Custom Music Player Service** - Manages playback, queues, and connections
+- **FFmpeg Integration** - Optimized audio processing and format conversion
 
-For best quality, use FLAC files which provide lossless audio compression.
+### Search & Indexing
+- **Fuzzy Search Algorithm** - Levenshtein distance for intelligent matching
+- **File Indexing System** - Cached metadata parsing for fast searches
+- **Metadata Extraction** - Automatic title, artist, album detection
+- **Album Artwork Support** - Embedded artwork display in Discord
 
-## Automatic Command Deployment
-
-The bot now automatically deploys slash commands when it starts up:
-
-### Features:
-- **Smart Caching** - Only deploys when commands change
-- **Automatic Fallback** - Tries global deployment, falls back to guild
-- **Error Handling** - Continues startup even if deployment fails
-- **Manual Refresh** - Use `/refresh` command to redeploy (Admin only)
-- **Status Feedback** - Clear console output about deployment status
-
-### Commands:
-- **Automatic** - Commands deploy when you run `npm start`
-- **Manual** - Use `npm run deploy` if needed
-- **Refresh** - Use `/refresh` in Discord (Admin only)
-- **Clear Cache** - Use `npm run clear-cache` to force redeployment
-
-## Discord Components v2 Interface
-
-This bot uses Discord's latest Components v2 system for rich, interactive messages:
-
-### Features:
-- **Rich Text Display** - Markdown formatting with headers, bold, italics
-- **Sectioned Content** - Organized information blocks with thumbnails
-- **Interactive Buttons** - Direct playback control from messages
-- **Visual Separators** - Clean content organization
-- **Thumbnail Integration** - Album art and visual elements
-- **Real-time Updates** - Dynamic content that reflects current state
-
-## Dynamic Status Management
-
-The bot automatically updates its Discord status based on music activity:
-
-### Status States:
-- **😴 Idle** - No music playing, ready to start
-- **🎵 Playing** - Currently playing music with track name
-- **⏸️ Paused** - Music is paused with track name
-- **🔄 Loading** - Buffering or loading music
-
-### Features:
-- **Automatic Updates** - Status changes based on music activity
-- **Multi-Server Support** - Shows activity from any connected server
-- **Real-time Sync** - Updates within seconds of music changes
-- **Manual Control** - Force status updates with `/status` command
-
-### Benefits:
-- **Better User Experience** - More intuitive and visually appealing
-- **Reduced Command Usage** - Control music without typing commands
-- **Rich Information Display** - More detailed track and queue information
-- **Modern Interface** - Matches Discord's latest design standards
-
-## Comprehensive Logging System
-
-The bot includes a powerful logging system that tracks all interactions and events:
-
-### Features:
-- **Colored Console Output** - Easy-to-read logs with emojis and colors
-- **File Logging** - Daily log files with JSON format for analysis
-- **Smart Categorization** - Different log levels (info, success, warning, error, command, button, music)
-- **Interaction Tracking** - Every slash command and button click is logged
-- **Music Event Logging** - Track starts, stops, skips, errors, and queue changes
-- **Web API Logging** - All web interface requests and responses
-- **Performance Metrics** - Execution times for commands and operations
-- **Automatic Cleanup** - Old logs are automatically cleaned (30-day retention)
-
-### Log Categories:
-- **🎵 Commands** - Slash command executions with user info and timing
-- **🔘 Buttons** - Button interactions with context and results
-- **🎶 Music Events** - Track changes, queue updates, voice connections
-- **🌐 Web API** - Web interface requests and file operations
-- **❌ Errors** - Detailed error information with stack traces
-- **✅ Success** - Successful operations with performance data
-- **ℹ️ System** - Bot startup, configuration, and maintenance events
-
-### Admin Commands:
-- **`/logs stats`** - View logging statistics and file information
-- **`/logs recent`** - Show recent activity and interaction summary
-- **`/logs clean`** - Clean old log files manually
-
-### Example Console Output:
-```
-[2024-01-15 14:30:25] 🎵 [COMMAND] Slash command executed: /play
-[2024-01-15 14:30:25] ✅ [SUCCESS] Command /play executed successfully (245ms)
-[2024-01-15 14:30:26] 🎶 [MUSIC] Music event: Track Started
-[2024-01-15 14:30:30] 🔘 [BUTTON] Button clicked: music_pause
-[2024-01-15 14:30:30] ✅ [SUCCESS] Button interaction music_pause processed successfully (12ms)
-```
-
-## File Structure
+### File Structure
 ```
 music/
 ├── src/
 │   ├── commands/          # Discord slash commands
 │   ├── events/           # Discord event handlers
+│   ├── services/         # Music player service (Medley integration)
+│   ├── utils/            # Utilities (fuzzy search, logging, metadata)
 │   ├── web/              # Web API routes
 │   └── index.js          # Main application
 ├── public/               # Web UI files
 ├── music_collection/     # Your music files go here
 ├── config.json          # Configuration
-├── package.json         # Dependencies
-└── deploy-commands.js   # Command deployment script
+└── package.json         # Dependencies
 ```
 
-## Troubleshooting
+## 📦 Dependencies
 
-### Bot not responding
-- Check if bot token is correct in config.json
-- Ensure bot has proper permissions in Discord server
-- Run `node deploy-commands.js` to deploy commands
-
-### Metadata extraction issues
-- The bot uses `music-metadata` for extracting song information
-- If metadata extraction fails, it falls back to filename parsing
-- Supported filename patterns:
-  - `Artist - Title.mp3`
-  - `Artist - Album - Title.flac`
-  - `01. Artist - Title.mp3`
-  - `Title (Artist).m4a`
-- Run `npm run check` to verify dependencies
-
-### ES Module compatibility
-- The bot handles ES module imports automatically
-- If you see ES module errors, try: `npm install music-metadata@latest`
-- The bot will work with limited metadata if imports fail
-- Ensure bot has proper permissions in Discord server
-- Run `node deploy-commands.js` to deploy commands
-
-### Audio quality issues
-- Ensure FFmpeg is installed and accessible
-- Check if music files are not corrupted
-- Verify sample rate settings in config.json
-
-### Web UI not loading
-- Check if port 3000 is available
-- Ensure all dependencies are installed
-- Check console for error messages
-
-### Local files not found
-- Verify musicDirectory path in config.json
-- Ensure music files have supported extensions
-- Check file permissions
-
-## Dependencies
-
-### Core
-- `discord.js` - Discord API wrapper
-- `discord-player` - High-level music player
+### Core Framework
+- `discord.js` - Discord API wrapper and Components v2
 - `@discordjs/voice` - Voice connection handling
+- `@seamless-medley/medley` - Professional audio processing engine
 - `express` - Web server framework
 
 ### Audio Processing
-- `@discord-player/opus` - Opus audio codec
-- `ffmpeg-static` - FFmpeg binary
-- `music-metadata` - Audio metadata extraction
+- `@discordjs/opus` - Opus audio codec
+- `ffmpeg-static` - FFmpeg binary for audio conversion
+- Custom metadata parser with fallback support
 
 ### Utilities
 - `fs-extra` - Enhanced file system operations
 - `cors` - Cross-origin resource sharing
-- `libsodium-wrappers` - Encryption for voice
+- Custom fuzzy search engine with Levenshtein distance
+- Comprehensive logging system with file rotation
 
-## License
+## 🎵 Audio Quality Features
+
+The bot is optimized for audiophile-quality playback:
+
+### Medley Audio Engine
+- **Sample Rate**: 48kHz (Discord's native rate)
+- **Bit Depth**: 16-bit signed integer (Int16LE)
+- **Channels**: Stereo (2 channels)
+- **Buffer Size**: 1 second for stability
+- **Buffering**: 250ms for low latency
+- **ReplayGain**: Automatic volume normalization
+
+### Format Support
+- **FLAC** - Lossless compression (recommended for best quality)
+- **MP3** - Lossy compression with high bitrate support
+- **M4A** - Apple's AAC format
+- **WAV** - Uncompressed PCM audio
+- **OGG** - Ogg Vorbis compression
+
+### Quality Optimizations
+- Direct PCM streaming to Discord (no double encoding)
+- Medley's professional audio processing
+- No inline volume processing (handled by Medley)
+- Zero silence padding for cleaner audio transitions
+
+## 🔍 Enhanced Search Features
+
+### Fuzzy Search Algorithm
+- **Levenshtein Distance** - Calculates character-level differences
+- **Similarity Scoring** - 0-1 scale with intelligent weighting
+- **Multiple Match Types** - Filename, path, and directory matching
+- **Threshold Filtering** - Minimum 30% similarity for results
+
+### Search Result Display
+- **Paginated Interface** - 25 results per page, up to 100 total
+- **Similarity Percentages** - Shows match confidence
+- **Directory Context** - Displays file location
+- **Interactive Selection** - Dropdown menu for instant playback
+
+### Caching System
+- **File Index Cache** - 5-minute cache for file metadata
+- **Search Result Cache** - 10-minute cache for user searches
+- **Automatic Cleanup** - Removes old cache entries automatically
+
+## 🚨 Troubleshooting
+
+### Bot not responding
+- Check if bot token is correct in config.json
+- Ensure bot has proper permissions in Discord server
+- Verify FFmpeg is installed and accessible
+
+### Audio quality issues
+- Ensure music files are not corrupted
+- Check supported format extensions in config
+- Verify Medley can load the audio files
+
+### Search not finding files
+- Check musicDirectory path in config.json
+- Ensure files have supported extensions
+- Try clearing search cache with bot restart
+
+### Web UI not loading
+- Check if port 3005 is available (or configured port)
+- Ensure all dependencies are installed
+- Check console for error messages
+
+### Memory issues with large collections
+- The bot indexes all files on startup
+- Consider organizing music in subdirectories
+- Monitor memory usage with large FLAC collections
+
+## 📊 Performance Notes
+
+### Recommended System Requirements
+- **RAM**: 512MB minimum, 1GB+ for large collections (10,000+ files)
+- **CPU**: Modern multi-core processor for real-time audio processing
+- **Storage**: SSD recommended for faster file access
+- **Network**: Stable internet connection for Discord voice
+
+### Optimization Tips
+- Use FLAC for best quality, MP3 for smaller file sizes
+- Organize music in logical directory structures
+- Keep music files on local storage (not network drives)
+- Regular cleanup of log files (automatic after 30 days)
+
+## 📝 License
 
 MIT License - Feel free to modify and distribute.
 
-## Support
+## 🎶 Enjoy Your High-Quality Discord Music Experience!
 
-For issues and questions:
-1. Check the troubleshooting section
-2. Verify your configuration
-3. Check Discord bot permissions
-4. Ensure all dependencies are installed
-
-Enjoy your high-quality Discord music experience! 🎵
+This bot provides audiophile-quality music playback with intelligent search capabilities, making it perfect for music enthusiasts who want the best possible audio quality in Discord voice channels.
