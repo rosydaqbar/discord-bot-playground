@@ -430,17 +430,17 @@ module.exports = {
                 new ButtonBuilder()
                     .setCustomId('search_qobuz')
                     .setLabel('Search on Qobuz')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🎵'),
                 new ButtonBuilder()
                     .setCustomId('search_apple_music')
                     .setLabel('Search on Apple Music')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🍎'),
                 new ButtonBuilder()
                     .setCustomId('search_youtube')
                     .setLabel('Search on YouTube')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(ButtonStyle.Secondary)
                     .setEmoji('📺')
             );
 
@@ -476,17 +476,17 @@ module.exports = {
                 new ButtonBuilder()
                     .setCustomId('search_qobuz')
                     .setLabel('Search on Qobuz')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🎵'),
                 new ButtonBuilder()
                     .setCustomId('search_apple_music')
                     .setLabel('Search on Apple Music')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🍎'),
                 new ButtonBuilder()
                     .setCustomId('search_youtube')
                     .setLabel('Search on YouTube')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(ButtonStyle.Secondary)
                     .setEmoji('📺')
             );
 
