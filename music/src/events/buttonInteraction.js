@@ -1250,6 +1250,17 @@ module.exports = {
                         });
                     }
 
+                    // Handle search pagination
+                    if (interaction.customId.startsWith('search_next:') || interaction.customId.startsWith('search_prev:')) {
+                        const parts = interaction.customId.split(':');
+                        const action = parts[0]; // 'search_next' or 'search_prev'
+                        const originalQuery = parts[1];
+                        const page = parseInt(parts[2]);
+                        
+                        const playCommand = require('../commands/play');
+                        return await playCommand.handleSearchPagination(interaction, originalQuery, page);
+                    }
+
                     // Handle pagination and other custom interactions
                     if (interaction.customId.startsWith('queue_')) {
                         const comingSoonContainer = new ContainerBuilder()

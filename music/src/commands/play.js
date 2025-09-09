@@ -18,6 +18,9 @@ const config = require('../../config.json');
 const musicPlayer = require('../services/musicPlayer');
 const fuzzySearch = require('../utils/fuzzySearch');
 
+// Temporary cache for search results (in production, consider using Redis or similar)
+const searchCache = new Map();
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('play')
@@ -81,11 +84,25 @@ module.exports = {
                 });
 
                 // Perform fuzzy search
-                const searchResults = await fuzzySearch.fuzzySearch(filename, 10);
+                const searchResults = await fuzzySearch.fuzzySearch(filename, 100);
 
                 if (searchResults.length > 0) {
+                    // Cache search results for pagination
+                    const cacheKey = `${interaction.user.id}:${filename}`;
+                    searchCache.set(cacheKey, {
+                        results: searchResults,
+                        timestamp: Date.now()
+                    });
+                    
+                    // Clean up old cache entries (older than 10 minutes)
+                    for (const [key, value] of searchCache.entries()) {
+                        if (Date.now() - value.timestamp > 10 * 60 * 1000) {
+                            searchCache.delete(key);
+                        }
+                    }
+                    
                     // Show search results
-                    return await this.showSearchResults(interaction, filename, searchResults);
+                    return await this.showSearchResults(interaction, filename, searchResults, 0);
                 } else {
                     // No results found - show error with external search options
                     return await this.showNoResultsError(interaction, filename);
@@ -376,8 +393,14 @@ module.exports = {
         }
     },
 
-    // Show search results with selectable options
-    async showSearchResults(interaction, originalQuery, searchResults) {
+    // Show search results with selectable options and pagination
+    async showSearchResults(interaction, originalQuery, searchResults, page = 0) {
+        const resultsPerPage = 25;
+        const totalPages = Math.ceil(searchResults.length / resultsPerPage);
+        const startIndex = page * resultsPerPage;
+        const endIndex = Math.min(startIndex + resultsPerPage, searchResults.length);
+        const currentPageResults = searchResults.slice(startIndex, endIndex);
+
         const searchCompleteContainer = new ContainerBuilder()
             .setAccentColor(0x00FF00)
             .addTextDisplayComponents(
@@ -389,19 +412,19 @@ module.exports = {
             )
             .addTextDisplayComponents(
                 textDisplay => textDisplay
-                    .setContent(`Found ${searchResults.length} result${searchResults.length === 1 ? '' : 's'} for "${originalQuery}":`)
+                    .setContent(`Found ${searchResults.length} result${searchResults.length === 1 ? '' : 's'} for "${originalQuery}"\n\n**Page ${page + 1} of ${totalPages}** (showing ${startIndex + 1}-${endIndex} of ${searchResults.length})`)
             );
 
-        // Create select menu with search results
+        // Create select menu with current page results
         const selectMenu = new StringSelectMenuBuilder()
             .setCustomId('play_search_result')
             .setPlaceholder('Choose a track to play...')
             .setMinValues(1)
             .setMaxValues(1);
 
-        // Add options for each search result
-        for (let i = 0; i < Math.min(searchResults.length, 25); i++) { // Discord limit is 25 options
-            const result = searchResults[i];
+        // Add options for current page results
+        for (let i = 0; i < currentPageResults.length; i++) {
+            const result = currentPageResults[i];
             const similarity = Math.round(result.similarity * 100);
             
             let description = `${similarity}% match`;
@@ -419,8 +442,33 @@ module.exports = {
 
         const selectRow = new ActionRowBuilder().addComponents(selectMenu);
 
-        // Add additional buttons
-        const buttonRow = new ActionRowBuilder()
+        // Create pagination buttons
+        const paginationRow = new ActionRowBuilder();
+        
+        // Previous page button
+        if (page > 0) {
+            paginationRow.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`search_prev:${originalQuery}:${page - 1}`)
+                    .setLabel('Previous Results')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('⬅️')
+            );
+        }
+
+        // Next page button
+        if (page < totalPages - 1) {
+            paginationRow.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`search_next:${originalQuery}:${page + 1}`)
+                    .setLabel('Next Results')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('➡️')
+            );
+        }
+
+        // Add external search buttons
+        const externalSearchRow = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId(`rerun_play:${originalQuery}`)
@@ -444,8 +492,135 @@ module.exports = {
                     .setEmoji('📺')
             );
 
+        // Build components array
+        const components = [searchCompleteContainer, selectRow];
+        
+        // Add pagination row if there are pagination buttons
+        if (paginationRow.components.length > 0) {
+            components.push(paginationRow);
+        }
+        
+        // Add external search row
+        components.push(externalSearchRow);
+
         return interaction.editReply({
-            components: [searchCompleteContainer, selectRow, buttonRow],
+            components: components,
+            flags: MessageFlags.IsComponentsV2
+        });
+    },
+
+    // Show search results with pagination (for button updates)
+    async showSearchResultsUpdate(interaction, originalQuery, searchResults, page = 0) {
+        const resultsPerPage = 25;
+        const totalPages = Math.ceil(searchResults.length / resultsPerPage);
+        const startIndex = page * resultsPerPage;
+        const endIndex = Math.min(startIndex + resultsPerPage, searchResults.length);
+        const currentPageResults = searchResults.slice(startIndex, endIndex);
+
+        const searchCompleteContainer = new ContainerBuilder()
+            .setAccentColor(0x00FF00)
+            .addTextDisplayComponents(
+                textDisplay => textDisplay
+                    .setContent('## Search Complete')
+            )
+            .addSeparatorComponents(
+                separator => separator
+            )
+            .addTextDisplayComponents(
+                textDisplay => textDisplay
+                    .setContent(`Found ${searchResults.length} result${searchResults.length === 1 ? '' : 's'} for "${originalQuery}"\n\n**Page ${page + 1} of ${totalPages}** (showing ${startIndex + 1}-${endIndex} of ${searchResults.length})`)
+            );
+
+        // Create select menu with current page results
+        const selectMenu = new StringSelectMenuBuilder()
+            .setCustomId('play_search_result')
+            .setPlaceholder('Choose a track to play...')
+            .setMinValues(1)
+            .setMaxValues(1);
+
+        // Add options for current page results
+        for (let i = 0; i < currentPageResults.length; i++) {
+            const result = currentPageResults[i];
+            const similarity = Math.round(result.similarity * 100);
+            
+            let description = `${similarity}% match`;
+            if (result.directory) {
+                description += ` • ${result.directory}`;
+            }
+            
+            selectMenu.addOptions(
+                new StringSelectMenuOptionBuilder()
+                    .setLabel(result.name.length > 100 ? result.name.substring(0, 97) + '...' : result.name)
+                    .setDescription(description.length > 100 ? description.substring(0, 97) + '...' : description)
+                    .setValue(`play:${result.relativePath}`)
+            );
+        }
+
+        const selectRow = new ActionRowBuilder().addComponents(selectMenu);
+
+        // Create pagination buttons
+        const paginationRow = new ActionRowBuilder();
+        
+        // Previous page button
+        if (page > 0) {
+            paginationRow.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`search_prev:${originalQuery}:${page - 1}`)
+                    .setLabel('Previous Results')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('⬅️')
+            );
+        }
+
+        // Next page button
+        if (page < totalPages - 1) {
+            paginationRow.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`search_next:${originalQuery}:${page + 1}`)
+                    .setLabel('Next Results')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('➡️')
+            );
+        }
+
+        // Add external search buttons
+        const externalSearchRow = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`rerun_play:${originalQuery}`)
+                    .setLabel('Rerun Command')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔄'),
+                new ButtonBuilder()
+                    .setCustomId('search_qobuz')
+                    .setLabel('Search on Qobuz')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🎵'),
+                new ButtonBuilder()
+                    .setCustomId('search_apple_music')
+                    .setLabel('Search on Apple Music')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🍎'),
+                new ButtonBuilder()
+                    .setCustomId('search_youtube')
+                    .setLabel('Search on YouTube')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('📺')
+            );
+
+        // Build components array
+        const components = [searchCompleteContainer, selectRow];
+        
+        // Add pagination row if there are pagination buttons
+        if (paginationRow.components.length > 0) {
+            components.push(paginationRow);
+        }
+        
+        // Add external search row
+        components.push(externalSearchRow);
+
+        return interaction.update({
+            components: components,
             flags: MessageFlags.IsComponentsV2
         });
     },
@@ -494,5 +669,45 @@ module.exports = {
             components: [noResultsContainer, buttonRow],
             flags: MessageFlags.IsComponentsV2
         });
+    },
+
+    // Handle pagination for search results
+    async handleSearchPagination(interaction, originalQuery, page) {
+        const cacheKey = `${interaction.user.id}:${originalQuery}`;
+        const cachedData = searchCache.get(cacheKey);
+        
+        if (!cachedData) {
+            // Cache expired or not found, show error
+            const expiredContainer = new ContainerBuilder()
+                .setAccentColor(0xFF0000)
+                .addTextDisplayComponents(
+                    textDisplay => textDisplay
+                        .setContent('## Search Expired')
+                )
+                .addSeparatorComponents(
+                    separator => separator
+                )
+                .addTextDisplayComponents(
+                    textDisplay => textDisplay
+                        .setContent('Search results have expired. Please run the search again.')
+                );
+
+            const retryButton = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`rerun_play:${originalQuery}`)
+                        .setLabel('Search Again')
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji('🔍')
+                );
+
+            return interaction.update({
+                components: [expiredContainer, retryButton],
+                flags: MessageFlags.IsComponentsV2
+            });
+        }
+
+        // Show the requested page using update since this is a button interaction
+        return await this.showSearchResultsUpdate(interaction, originalQuery, cachedData.results, page);
     },
 };
