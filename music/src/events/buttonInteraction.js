@@ -514,42 +514,17 @@ module.exports = {
                                 separator => separator
                             );
 
-                        // Add artwork if available
-                        if (currentQueueTrack.artwork) {
-                            // Create attachment for the artwork
-                            const attachment = new AttachmentBuilder(currentQueueTrack.artwork, { name: 'album-artwork.jpg' });
-                            
-                            // Add track info with artwork in a section
-                            currentTrackContainer.addSectionComponents(
-                                new SectionBuilder()
-                                    .addTextDisplayComponents(
-                                        textDisplay => textDisplay
-                                            .setContent(`**${currentQueueTrack.title}**\n**Artist:** ${currentQueueTrack.artist || 'Unknown Artist'}\n**Album:** ${currentQueueTrack.album || 'Unknown Album'}\n**File:** \`${path.basename(currentQueueTrack.filePath)}\`\n**Volume:** 80%\n**Started:** <t:${startedTime}:R>\n**Status:** ${status}`)
-                                    )
-                                    .setThumbnailAccessory(
-                                        new ThumbnailBuilder()
-                                            .setURL('attachment://album-artwork.jpg')
-                                    )
-                            );
-                            
-                            // Add attachment to the reply
-                            return interaction.reply({
-                                files: [attachment],
-                                components: [queueContainer, currentTrackContainer, separator1, queueListContainer, buttonRow],
-                                flags: MessageFlags.IsComponentsV2
-                            });
-                        } else {
-                            // No artwork available, use simple text display
-                            currentTrackContainer.addTextDisplayComponents(
-                                textDisplay => textDisplay
-                                    .setContent(`**${currentQueueTrack.title}**\n**Artist:** ${currentQueueTrack.artist || 'Unknown Artist'}\n**Album:** ${currentQueueTrack.album || 'Unknown Album'}\n**File:** \`${path.basename(currentQueueTrack.filePath)}\`\n**Volume:** 80%\n**Started:** <t:${startedTime}:R>\n**Status:** ${status}`)
-                            );
-                        }
-
+                        // Create separator for layout
                         const separator1 = new ContainerBuilder()
                             .addSeparatorComponents(
                                 separator => separator
                             );
+
+                        // Add track info (no artwork attachment for now)
+                        currentTrackContainer.addTextDisplayComponents(
+                            textDisplay => textDisplay
+                                .setContent(`**${currentQueueTrack.title}**\n**Artist:** ${currentQueueTrack.artist || 'Unknown Artist'}\n**Album:** ${currentQueueTrack.album || 'Unknown Album'}\n**File:** \`${path.basename(currentQueueTrack.filePath)}\`\n**Volume:** 80%\n**Started:** <t:${startedTime}:R>\n**Status:** ${status}`)
+                        );
 
                         // Queue section
                         if (queue.length > 0) {
@@ -603,7 +578,7 @@ module.exports = {
                                         .setEmoji('🔄')
                                 );
 
-                            // Return the reply (attachment case is handled above in the artwork section)
+                            // Return the reply
                             return interaction.reply({
                                 components: [queueContainer, currentTrackContainer, separator1, queueListContainer, buttonRow],
                                 flags: MessageFlags.IsComponentsV2
@@ -650,7 +625,7 @@ module.exports = {
                                         .setEmoji('🔄')
                                 );
 
-                            // Return the reply (attachment case is handled above in the artwork section)
+                            // Return the reply
                             return interaction.reply({
                                 components: [queueContainer, currentTrackContainer, separator1, emptyQueueContainer, buttonRow],
                                 flags: MessageFlags.IsComponentsV2

@@ -838,6 +838,83 @@ class MusicPlayer {
         return customQueue ? customQueue.length : 0;
     }
 
+    // Add multiple files to queue at once (for bulk operations)
+    async addMultipleToQueue(guildId, filePaths) {
+        if (!filePaths || filePaths.length === 0) {
+            return {
+                filesAdded: 0,
+                tracks: [],
+                newQueueLength: this.getQueueLength(guildId)
+            };
+        }
+
+        await this.initializeForGuild(guildId);
+
+        const queue = this.queues.get(guildId);
+        if (!queue) {
+            throw new Error('Queue not initialized');
+        }
+
+        const customQueue = this.customQueues.get(guildId);
+        if (!customQueue) {
+            throw new Error('Custom queue not initialized');
+        }
+
+        const addedTracks = [];
+        let filesAdded = 0;
+
+        // Process files in batches to prevent memory issues
+        const batchSize = 10;
+        for (let i = 0; i < filePaths.length; i += batchSize) {
+            const batch = filePaths.slice(i, i + batchSize);
+            
+            for (const filePath of batch) {
+                try {
+                    // Check if file exists and is loadable
+                    if (await fs.pathExists(filePath) && Medley.isTrackLoadable(filePath)) {
+                        // Add to our custom queue
+                        customQueue.push(filePath);
+                        filesAdded++;
+
+                        // Get metadata for the track
+                        const medleyMetadata = await this.getMetadata(filePath);
+                        const artwork = await this.extractArtwork(filePath);
+
+                        addedTracks.push({
+                            title: medleyMetadata?.title || path.basename(filePath, path.extname(filePath)),
+                            artist: medleyMetadata?.artist || 'Unknown Artist',
+                            album: medleyMetadata?.album || 'Unknown Album',
+                            filePath: filePath,
+                            metadata: medleyMetadata,
+                            artwork: artwork
+                        });
+                    } else {
+                        console.log(`⚠️ Skipping unplayable file: ${filePath}`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Error processing file ${filePath}:`, error);
+                    // Continue with other files
+                }
+            }
+
+            // Small delay between batches to prevent blocking
+            if (i + batchSize < filePaths.length) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+        }
+
+        // Clear auto-disconnect timer when adding to queue
+        if (filesAdded > 0) {
+            this.clearAutoDisconnectTimer(guildId);
+        }
+
+        return {
+            filesAdded: filesAdded,
+            tracks: addedTracks,
+            newQueueLength: this.getQueueLength(guildId)
+        };
+    }
+
     // Check if there's a previous track available
     hasPreviousTrack(guildId) {
         const previousTracks = this.previousTracks.get(guildId);
