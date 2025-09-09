@@ -61,6 +61,21 @@ module.exports = {
                 .addTextDisplayComponents(
                     textDisplay => textDisplay
                         .setContent(`**Current State:** ${statusInfo.isIdle ? 'Idle' : 'Active'}\n**Uptime:** ${uptimeString}\n**Active Queues:** ${statusInfo.activeQueues}\n**Servers:** ${client.guilds.cache.size}\n**Users:** ${client.users.cache.size}\n\n**Discord Status:**\n${currentActivity ? `• Activity: ${currentActivity.name}\n• Type: ${this.getActivityType(currentActivity.type)}\n• State: ${currentActivity.state || 'None'}` : '• No activity set'}`)
+                )
+                .addSeparatorComponents(
+                    separator => separator
+                )
+                .addButtonComponents(
+                    new ButtonBuilder()
+                        .setCustomId('status_refresh')
+                        .setLabel('Refresh Status')
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji('🔄'),
+                    new ButtonBuilder()
+                        .setCustomId('dashboard_refresh')
+                        .setLabel('View Dashboard')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji('📊')
                 );
 
             // Show current music activity if any
@@ -77,48 +92,25 @@ module.exports = {
                     .addTextDisplayComponents(
                         textDisplay => textDisplay
                             .setContent(`**Track:** ${statusInfo.currentActivity.trackTitle}\n**Server:** ${statusInfo.currentActivity.guildName}\n**Paused:** ${statusInfo.currentActivity.paused ? 'Yes' : 'No'}\n**Last Update:** <t:${Math.floor(statusInfo.lastUpdate / 1000)}:R>`)
-                    );
-
-                const buttonRow = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('status_refresh')
-                            .setLabel('Refresh Status')
-                            .setStyle(ButtonStyle.Primary)
-                            .setEmoji('🔄'),
+                    )
+                    .addSeparatorComponents(
+                        separator => separator
+                    )
+                    .addButtonComponents(
                         new ButtonBuilder()
                             .setCustomId('status_force_idle')
                             .setLabel('Force Idle')
                             .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('😴'),
-                        new ButtonBuilder()
-                            .setCustomId('dashboard_refresh')
-                            .setLabel('View Dashboard')
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('📊')
+                            .setEmoji('😴')
                     );
 
                 return interaction.editReply({
-                    components: [statusContainer, musicContainer, buttonRow],
+                    components: [statusContainer, musicContainer],
                     flags: MessageFlags.IsComponentsV2
                 });
             } else {
-                const buttonRow = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('status_refresh')
-                            .setLabel('Refresh Status')
-                            .setStyle(ButtonStyle.Primary)
-                            .setEmoji('🔄'),
-                        new ButtonBuilder()
-                            .setCustomId('dashboard_refresh')
-                            .setLabel('View Dashboard')
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('📊')
-                    );
-
                 return interaction.editReply({
-                    components: [statusContainer, buttonRow],
+                    components: [statusContainer],
                     flags: MessageFlags.IsComponentsV2
                 });
             }

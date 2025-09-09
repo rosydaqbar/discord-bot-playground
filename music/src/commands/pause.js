@@ -53,11 +53,11 @@ module.exports = {
                 .addTextDisplayComponents(
                     textDisplay => textDisplay
                         .setContent(`**${currentTrack.title}**\n\nUse \`/resume\` to continue playing`)
-                );
-
-            // Create buttons outside the container
-            const buttonRow = new ActionRowBuilder()
-                .addComponents(
+                )
+                .addSeparatorComponents(
+                    separator => separator
+                )
+                .addButtonComponents(
                     new ButtonBuilder()
                         .setCustomId('music_resume')
                         .setLabel('Resume')
@@ -71,7 +71,7 @@ module.exports = {
                 );
 
             return interaction.reply({
-                components: [pauseContainer, buttonRow],
+                components: [pauseContainer],
                 flags: MessageFlags.IsComponentsV2
             });
         } else {

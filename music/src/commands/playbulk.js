@@ -221,10 +221,11 @@ module.exports = {
                         .addTextDisplayComponents(
                             textDisplay => textDisplay
                                 .setContent(trackList)
-                        );
-
-                    const buttonRow = new ActionRowBuilder()
-                        .addComponents(
+                        )
+                        .addSeparatorComponents(
+                            separator => separator
+                        )
+                        .addButtonComponents(
                             new ButtonBuilder()
                                 .setCustomId('view_queue')
                                 .setLabel('View Full Queue')
@@ -243,7 +244,7 @@ module.exports = {
                         );
 
                     return interaction.editReply({
-                        components: [queueContainer, trackListContainer, buttonRow],
+                        components: [queueContainer, trackListContainer],
                         flags: MessageFlags.IsComponentsV2
                     });
                 } else {
@@ -309,10 +310,11 @@ module.exports = {
                         .addTextDisplayComponents(
                             textDisplay => textDisplay
                                 .setContent(trackList)
-                        );
-
-                    const buttonRow = new ActionRowBuilder()
-                        .addComponents(
+                        )
+                        .addSeparatorComponents(
+                            separator => separator
+                        )
+                        .addButtonComponents(
                             new ButtonBuilder()
                                 .setCustomId('music_pause')
                                 .setLabel('Pause')
@@ -336,7 +338,7 @@ module.exports = {
                         );
 
                     return interaction.editReply({
-                        components: [playingContainer, trackListContainer, buttonRow],
+                        components: [playingContainer, trackListContainer],
                         flags: MessageFlags.IsComponentsV2
                     });
                 }

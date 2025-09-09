@@ -56,6 +56,27 @@ module.exports = {
                 .addTextDisplayComponents(
                     textDisplay => textDisplay
                         .setContent(`**Server:** ${interaction.guild.name}\n**Bot Status:** Online and Ready`)
+                )
+                .addSeparatorComponents(
+                    separator => separator
+                )
+                .addButtonComponents(
+                    new ButtonBuilder()
+                        .setCustomId('dashboard_refresh')
+                        .setLabel('Refresh Stats')
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji('🔄'),
+                    new ButtonBuilder()
+                        .setCustomId('browse_collection')
+                        .setLabel('Browse Music')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji('📁'),
+                    new ButtonBuilder()
+                        .setCustomId('web_ui')
+                        .setLabel('Web UI')
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(`http://localhost:${config.webPort}`)
+                        .setEmoji('🌐')
                 );
 
             // Create server stats container
@@ -95,6 +116,7 @@ module.exports = {
             // Create current playback container if music is playing
             let playbackContainer = null;
             if (currentTrack) {
+                const isPaused = musicPlayer.isPaused(interaction.guildId);
                 playbackContainer = new ContainerBuilder()
                     .setAccentColor(0xFF6600)
                     .addTextDisplayComponents(
@@ -107,36 +129,11 @@ module.exports = {
                     .addTextDisplayComponents(
                         textDisplay => textDisplay
                             .setContent(`**${currentTrack.title}**\n**Artist:** ${currentTrack.artist || 'Unknown Artist'}\n**Album:** ${currentTrack.album || 'Unknown Album'}\n*Local File*\n${currentTrack.filePath}\nVolume: 80%`)
-                    );
-            }
-
-            // Create main control buttons
-            const mainButtonRow = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('dashboard_refresh')
-                        .setLabel('Refresh Stats')
-                        .setStyle(ButtonStyle.Primary)
-                        .setEmoji('🔄'),
-                    new ButtonBuilder()
-                        .setCustomId('browse_collection')
-                        .setLabel('Browse Music')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('📁'),
-                    new ButtonBuilder()
-                        .setCustomId('web_ui')
-                        .setLabel('Web UI')
-                        .setStyle(ButtonStyle.Link)
-                        .setURL(`http://localhost:${config.webPort}`)
-                        .setEmoji('🌐')
-                );
-
-            // Create music control buttons (if music is playing)
-            let musicButtonRow = null;
-            if (currentTrack) {
-                const isPaused = musicPlayer.isPaused(interaction.guildId);
-                musicButtonRow = new ActionRowBuilder()
-                    .addComponents(
+                    )
+                    .addSeparatorComponents(
+                        separator => separator
+                    )
+                    .addButtonComponents(
                         new ButtonBuilder()
                             .setCustomId('music_pause')
                             .setLabel(isPaused ? 'Resume' : 'Pause')
@@ -164,12 +161,6 @@ module.exports = {
 
             if (playbackContainer) {
                 components.push(playbackContainer);
-            }
-
-            components.push(mainButtonRow);
-
-            if (musicButtonRow) {
-                components.push(musicButtonRow);
             }
 
             return interaction.editReply({ 
