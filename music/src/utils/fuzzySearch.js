@@ -103,7 +103,7 @@ class FuzzySearch {
 
                     // Get file stats
                     const stats = await fs.stat(fullPath);
-                    
+
                     const fileInfo = {
                         name: nameWithoutExt,
                         relativePath: relativePath,
@@ -125,7 +125,7 @@ class FuzzySearch {
     }
 
     // Perform fuzzy search on indexed files
-    async fuzzySearch(query, limit = 10) {
+    async fuzzySearch(query, limit = 100) {
         const files = await this.indexMusicFiles();
         const results = [];
 
@@ -142,8 +142,8 @@ class FuzzySearch {
                 results.push({
                     ...file,
                     similarity: bestScore,
-                    matchType: nameScore === bestScore ? 'name' : 
-                              pathScore === bestScore ? 'path' : 'directory'
+                    matchType: nameScore === bestScore ? 'name' :
+                        pathScore === bestScore ? 'path' : 'directory'
                 });
             }
         }

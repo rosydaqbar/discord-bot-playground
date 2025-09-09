@@ -442,15 +442,15 @@ module.exports = {
 
         const selectRow = new ActionRowBuilder().addComponents(selectMenu);
 
-        // Create pagination buttons
-        const paginationRow = new ActionRowBuilder();
+        // Create combined action row with pagination and quick actions (closer to dropdown)
+        const actionRow = new ActionRowBuilder();
         
         // Previous page button
         if (page > 0) {
-            paginationRow.addComponents(
+            actionRow.addComponents(
                 new ButtonBuilder()
                     .setCustomId(`search_prev:${originalQuery}:${page - 1}`)
-                    .setLabel('Previous Results')
+                    .setLabel('Previous')
                     .setStyle(ButtonStyle.Primary)
                     .setEmoji('⬅️')
             );
@@ -458,50 +458,62 @@ module.exports = {
 
         // Next page button
         if (page < totalPages - 1) {
-            paginationRow.addComponents(
+            actionRow.addComponents(
                 new ButtonBuilder()
                     .setCustomId(`search_next:${originalQuery}:${page + 1}`)
-                    .setLabel('Next Results')
+                    .setLabel('Next')
                     .setStyle(ButtonStyle.Primary)
                     .setEmoji('➡️')
             );
         }
 
-        // Add external search buttons
+        // Add rerun command button (always visible)
+        actionRow.addComponents(
+            new ButtonBuilder()
+                .setCustomId(`rerun_play:${originalQuery}`)
+                .setLabel('Search Again')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('🔄')
+        );
+
+        // Add clear search button if we have multiple pages
+        if (totalPages > 1) {
+            actionRow.addComponents(
+                new ButtonBuilder()
+                    .setCustomId('clear_search')
+                    .setLabel('Clear')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🗑️')
+            );
+        }
+
+        // External search buttons (separate row, more compact labels)
         const externalSearchRow = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`rerun_play:${originalQuery}`)
-                    .setLabel('Rerun Command')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄'),
-                new ButtonBuilder()
                     .setCustomId('search_qobuz')
-                    .setLabel('Search on Qobuz')
+                    .setLabel('Qobuz')
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🎵'),
                 new ButtonBuilder()
                     .setCustomId('search_apple_music')
-                    .setLabel('Search on Apple Music')
+                    .setLabel('Apple Music')
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🍎'),
                 new ButtonBuilder()
                     .setCustomId('search_youtube')
-                    .setLabel('Search on YouTube')
+                    .setLabel('YouTube')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📺')
+                    .setEmoji('📺'),
+                new ButtonBuilder()
+                    .setCustomId('search_help')
+                    .setLabel('Help')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('❓')
             );
 
-        // Build components array
-        const components = [searchCompleteContainer, selectRow];
-        
-        // Add pagination row if there are pagination buttons
-        if (paginationRow.components.length > 0) {
-            components.push(paginationRow);
-        }
-        
-        // Add external search row
-        components.push(externalSearchRow);
+        // Build components array - action row is always included (right after dropdown)
+        const components = [searchCompleteContainer, selectRow, actionRow, externalSearchRow];
 
         return interaction.editReply({
             components: components,
@@ -558,15 +570,15 @@ module.exports = {
 
         const selectRow = new ActionRowBuilder().addComponents(selectMenu);
 
-        // Create pagination buttons
-        const paginationRow = new ActionRowBuilder();
+        // Create combined action row with pagination and quick actions (closer to dropdown)
+        const actionRow = new ActionRowBuilder();
         
         // Previous page button
         if (page > 0) {
-            paginationRow.addComponents(
+            actionRow.addComponents(
                 new ButtonBuilder()
                     .setCustomId(`search_prev:${originalQuery}:${page - 1}`)
-                    .setLabel('Previous Results')
+                    .setLabel('Previous')
                     .setStyle(ButtonStyle.Primary)
                     .setEmoji('⬅️')
             );
@@ -574,50 +586,62 @@ module.exports = {
 
         // Next page button
         if (page < totalPages - 1) {
-            paginationRow.addComponents(
+            actionRow.addComponents(
                 new ButtonBuilder()
                     .setCustomId(`search_next:${originalQuery}:${page + 1}`)
-                    .setLabel('Next Results')
+                    .setLabel('Next')
                     .setStyle(ButtonStyle.Primary)
                     .setEmoji('➡️')
             );
         }
 
-        // Add external search buttons
+        // Add rerun command button (always visible)
+        actionRow.addComponents(
+            new ButtonBuilder()
+                .setCustomId(`rerun_play:${originalQuery}`)
+                .setLabel('Search Again')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('🔄')
+        );
+
+        // Add clear search button if we have multiple pages
+        if (totalPages > 1) {
+            actionRow.addComponents(
+                new ButtonBuilder()
+                    .setCustomId('clear_search')
+                    .setLabel('Clear')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🗑️')
+            );
+        }
+
+        // External search buttons (separate row, more compact labels)
         const externalSearchRow = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`rerun_play:${originalQuery}`)
-                    .setLabel('Rerun Command')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄'),
-                new ButtonBuilder()
                     .setCustomId('search_qobuz')
-                    .setLabel('Search on Qobuz')
+                    .setLabel('Qobuz')
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🎵'),
                 new ButtonBuilder()
                     .setCustomId('search_apple_music')
-                    .setLabel('Search on Apple Music')
+                    .setLabel('Apple Music')
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🍎'),
                 new ButtonBuilder()
                     .setCustomId('search_youtube')
-                    .setLabel('Search on YouTube')
+                    .setLabel('YouTube')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📺')
+                    .setEmoji('📺'),
+                new ButtonBuilder()
+                    .setCustomId('search_help')
+                    .setLabel('Help')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('❓')
             );
 
-        // Build components array
-        const components = [searchCompleteContainer, selectRow];
-        
-        // Add pagination row if there are pagination buttons
-        if (paginationRow.components.length > 0) {
-            components.push(paginationRow);
-        }
-        
-        // Add external search row
-        components.push(externalSearchRow);
+        // Build components array - action row is always included (right after dropdown)
+        const components = [searchCompleteContainer, selectRow, actionRow, externalSearchRow];
 
         return interaction.update({
             components: components,

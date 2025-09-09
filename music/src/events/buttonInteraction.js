@@ -1250,6 +1250,48 @@ module.exports = {
                         });
                     }
 
+                    if (interaction.customId === 'clear_search') {
+                        const clearContainer = new ContainerBuilder()
+                            .setAccentColor(0x00FF00)
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('## Search Cleared')
+                            )
+                            .addSeparatorComponents(
+                                separator => separator
+                            )
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('Search results have been cleared.\n\nUse `/play` to start a new search!')
+                            );
+
+                        return interaction.update({
+                            components: [clearContainer],
+                            flags: MessageFlags.IsComponentsV2
+                        });
+                    }
+
+                    if (interaction.customId === 'search_help') {
+                        const helpContainer = new ContainerBuilder()
+                            .setAccentColor(0x0099FF)
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('## Search Help')
+                            )
+                            .addSeparatorComponents(
+                                separator => separator
+                            )
+                            .addTextDisplayComponents(
+                                textDisplay => textDisplay
+                                    .setContent('**Search Tips:**\n\n• Use partial song names (e.g., "bohemian" for "Bohemian Rhapsody")\n• Try artist names or album names\n• Spelling doesn\'t need to be perfect - fuzzy search will find close matches\n• Use **Previous/Next** buttons to browse through all results\n• Select any result from the dropdown to play it\n\n**Navigation:**\n• **Previous/Next** - Browse search result pages\n• **Search Again** - Rerun the search command\n• **Clear** - Clear current search results')
+                            );
+
+                        return interaction.reply({
+                            components: [helpContainer],
+                            flags: MessageFlags.IsComponentsV2
+                        });
+                    }
+
                     // Handle search pagination
                     if (interaction.customId.startsWith('search_next:') || interaction.customId.startsWith('search_prev:')) {
                         const parts = interaction.customId.split(':');
