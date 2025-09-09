@@ -26,8 +26,8 @@ module.exports = {
         .setName('play')
         .setDescription('Play music from your local collection')
         .addStringOption(option =>
-            option.setName('filename')
-                .setDescription('Local music file name (without extension)')
+            option.setName('query')
+                .setDescription('Search for music in your collection')
                 .setRequired(true)
                 .setAutocomplete(true)),
 
@@ -55,12 +55,12 @@ module.exports = {
             });
         }
 
-        const filename = interaction.options.getString('filename');
+        const query = interaction.options.getString('query');
         await interaction.deferReply();
 
         try {
             // Find the music file using existing method first
-            let filePath = await musicPlayer.findMusicFile(filename);
+            let filePath = await musicPlayer.findMusicFile(query);
 
             if (!filePath) {
                 // Show searching message
@@ -75,7 +75,7 @@ module.exports = {
                     )
                     .addTextDisplayComponents(
                         textDisplay => textDisplay
-                            .setContent(`Searching for "${filename}" in your music collection...`)
+                            .setContent(`Searching for "${query}" in your music collection...`)
                     );
 
                 await interaction.editReply({
@@ -84,11 +84,11 @@ module.exports = {
                 });
 
                 // Perform fuzzy search
-                const searchResults = await fuzzySearch.fuzzySearch(filename, 100);
+                const searchResults = await fuzzySearch.fuzzySearch(query, 100);
 
                 if (searchResults.length > 0) {
                     // Cache search results for pagination
-                    const cacheKey = `${interaction.user.id}:${filename}`;
+                    const cacheKey = `${interaction.user.id}:${query}`;
                     searchCache.set(cacheKey, {
                         results: searchResults,
                         timestamp: Date.now()
@@ -102,10 +102,10 @@ module.exports = {
                     }
                     
                     // Show search results
-                    return await this.showSearchResults(interaction, filename, searchResults, 0);
+                    return await this.showSearchResults(interaction, query, searchResults, 0);
                 } else {
                     // No results found - show error with external search options
-                    return await this.showNoResultsError(interaction, filename);
+                    return await this.showNoResultsError(interaction, query);
                 }
             }
 
